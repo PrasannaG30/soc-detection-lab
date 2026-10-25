@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Enterprise SOC Console</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #f8fafc; padding: 24px; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 16px; margin-bottom: 24px; }
+        h1 { font-size: 20px; font-weight: 700; color: #10b981; }
+        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+        .card { background: #1e293b; border-radius: 8px; padding: 20px; border: 1px solid #334155; }
+        h2 { font-size: 16px; color: #94a3b8; text-transform: uppercase; margin-bottom: 16px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #334155; }
+        th { color: #94a3b8; font-weight: 600; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 11px; }
+        .badge-HIGH { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
+        .badge-MEDIUM { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid #f59e0b; }
+        .badge-LOW { background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid #3b82f6; }
+        .feed { font-family: monospace; font-size: 12px; max-height: 400px; overflow-y: auto; }
+        .feed-item { padding: 8px 0; border-bottom: 1px solid #334155; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>⚡ SOC-LAB // DETECTION & TRIAGE CONSOLE</h1>
+        <div style="color: #10b981; font-family: monospace;">● LIVE DATABASE CONNECTED</div>
+    </header>
+
+    <div class="grid">
+        <div class="card">
+            <h2>Active Security Alerts (MITRE ATT&CK)</h2>
+            <table>
+                <thead>
+                    <tr><th>Time</th><th>Severity</th><th>Rule & MITRE Technique</th><th>Source IP</th><th>Target</th></tr>
+                </thead>
+                <tbody>
+                    {% for a in alerts %}
+                    <tr>
+                        <td style="font-family: monospace;">{{ a['timestamp'].split(' ')[1] if ' ' in a['timestamp'] else a['timestamp'] }}</td>
+                        <td><span class="badge badge-{{ a['severity'] }}">{{ a['severity'] }}</span></td>
+                        <td><strong>{{ a['rule_name'] }}</strong><br><small style="color: #94a3b8;">{{ a['mitre_technique'] }}</small></td>
+                        <td style="font-family: monospace;">{{ a['src_ip'] or 'Local' }}</td>
+                        <td>{{ a['user'] or 'system' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>Raw Normalized Event Feed</h2>
+            <div class="feed">
+                {% for e in events %}
+                <div class="feed-item">
+                    <span style="color: #10b981;">[{{ e['event_type'] }}]</span> 
+                    <strong>{{ e['user'] or 'system' }}</strong> from {{ e['src_ip'] or e['hostname'] }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
